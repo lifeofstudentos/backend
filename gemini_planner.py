@@ -1,5 +1,4 @@
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 import json
@@ -7,7 +6,7 @@ from datetime import datetime, timedelta
 from schemas import DailyContext, PlanResponse, NextAction, ConfusionDump, ConfusionResponse
 
 load_dotenv()
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def get_age_appropriate_tone(age_group: str) -> dict:
     tones = {
@@ -158,12 +157,10 @@ Return JSON:
 }}"""
 
     try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json"
-            )
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(
+            prompt,
+            generation_config={"response_mime_type": "application/json"}
         )
         result = json.loads(response.text)
         return ConfusionResponse(**result)
