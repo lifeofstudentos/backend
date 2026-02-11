@@ -2,13 +2,18 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from typing import Dict, List, Any
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # Initialize Firebase Admin
 if not firebase_admin._apps:
-    cred = credentials.Certificate(os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY", "serviceAccountKey.json"))
+    service_account = os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY")
+    if service_account:
+        cred = credentials.Certificate(json.loads(service_account))
+    else:
+        cred = credentials.Certificate("serviceAccountKey.json")
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
