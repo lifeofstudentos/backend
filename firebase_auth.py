@@ -2,12 +2,17 @@ import firebase_admin
 from firebase_admin import credentials, auth
 from fastapi import HTTPException, Header
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate(os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY", "serviceAccountKey.json"))
+    service_account = os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY")
+    if service_account:
+        cred = credentials.Certificate(json.loads(service_account))
+    else:
+        cred = credentials.Certificate("serviceAccountKey.json")
     firebase_admin.initialize_app(cred)
 
 def verify_token(authorization: str = Header(None)) -> str:
